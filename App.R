@@ -1,21 +1,27 @@
 library(shiny)
 library(shinydashboard)
+library(knitr)
 library(kableExtra)
 
 # UI
 ui <- dashboardPage(
-  dashboardHeader(title = "Child's Ideal Body Weight and Lean Body Mass Calculator"),
+  dashboardHeader(title = "IBW/LBM Calculator"),
   dashboardSidebar(
     sidebarMenu(
-      menuItem("Calculator", tabName = "calculator", icon = icon("calculator"))
+      menuItem("Calculator", tabName = "calculator", icon = icon("calculator")),
+      
+      p("Copyright (c) Andy Clark & Lawrence Li")
     )
   ),
   dashboardBody(
+    
+    tags$style("@import url(https://use.fontawesome.com/releases/v6.1.1/css/all.css);"), 
+    
     tabItems(
       tabItem(
         tabName = "calculator",
         fluidPage(
-          titlePanel("Calculator"),
+          titlePanel("Ideal Body Weight and Lean Body Mass for Paediatrics"),
           sidebarLayout(
             sidebarPanel(
               selectInput(
@@ -39,7 +45,7 @@ ui <- dashboardPage(
               numericInput(
                 inputId = "weight",
                 label = "Weight (kg)",
-                value = 0,
+                value = 30,
                 min = 10,
                 max = 100
               ),
@@ -50,7 +56,7 @@ ui <- dashboardPage(
               )
             ),
             mainPanel(
-              verbatimTextOutput(outputId = "result")
+              htmlOutput(outputId = "result")
             )
           )
         )
@@ -60,28 +66,54 @@ ui <- dashboardPage(
 )
 
 # Server
-server <- function(input, output) {
-  observeEvent(input$calculate, {
-    # Constants for calculating ideal body weight
+server <- function(input, output, session) {
+  
+  calc <- reactive({
+    
     BMI_50_boys <- 24.27 - (8.91/(1+(as.numeric(input$age)/15.78)^4.4))
     BMI_50_girls <- 22.82 - (7.51/(1+(as.numeric(input$age)/13.46)^4.44))
     
-    # Calculate ideal body weight
     ideal_body_weight <- ifelse(input$gender == "Male",
-                                BMI_50_boys * input$height^2,
-                                BMI_50_girls * input$height^2)
+                                BMI_50_boys * (input$height/100)^2,
+                                BMI_50_girls * (input$height/100)^2)
     
-    # Calculate lean body mass
     lean_body_mass <- ideal_body_weight + 0.29 * (input$weight - ideal_body_weight)
     
-    # create table for output
-    
     table <- data.frame(title = c("measured weight (kg)", "Ideal Body Weight (kg)", "Lean Body Mass (kg)"), 
-                       value = c(input$weight, ideal_body_weight, lean_body_mass))
+                        value = c(input$weight, ideal_body_weight, lean_body_mass))
     
-    # Output the results
-    output$result <- kbl(table, "html", escape = F) %>%
-      kable_styling("bordered")
+    return(table)
+    
+  })
+  
+  output$result <- renderText({
+    
+    kbl(calc(), "html", escape = F) %>%
+    kable_styling("bordered")
+    
+  })
+  
+  # observeEvent(input$calculate, {
+  #   # Constants for calculating ideal body weight
+  #   BMI_50_boys <- 24.27 - (8.91/(1+(as.numeric(input$age)/15.78)^4.4))
+  #   BMI_50_girls <- 22.82 - (7.51/(1+(as.numeric(input$age)/13.46)^4.44))
+  #   
+  #   # Calculate ideal body weight
+  #   ideal_body_weight <- ifelse(input$gender == "Male",
+  #                               BMI_50_boys * input$height^2,
+  #                               BMI_50_girls * input$height^2)
+  #   
+  #   # Calculate lean body mass
+  #   lean_body_mass <- ideal_body_weight + 0.29 * (input$weight - ideal_body_weight)
+  #   
+  #   # create table for output
+  #   
+  #   table <- data.frame(title = c("measured weight (kg)", "Ideal Body Weight (kg)", "Lean Body Mass (kg)"), 
+  #                      value = c(input$weight, ideal_body_weight, lean_body_mass))
+  #   
+  #   # Output the results
+  #   output$result <- kbl(table, "html", escape = F) %>%
+  #     kable_styling("bordered")
       
       
       
@@ -95,7 +127,7 @@ server <- function(input, output) {
       # #add_header_above(c("","Haemoglobin (g/L)" = 3), bold = T, background = "#f2d8d8")
       
       
-    })
+    
   }
 
 # Run the app
