@@ -30,10 +30,11 @@ ui <- dashboardPage(
                 choices = c(5:18),
                 selected = 10
               ),
-              checkboxGroupInput(
+              selectInput(
                 inputId = "gender",
                 label = "Gender",
                 choices = c("Male", "Female"),
+                selected = "Male"
               ),
               numericInput(
                 inputId = "height",
@@ -49,11 +50,11 @@ ui <- dashboardPage(
                 min = 10,
                 max = 100
               ),
-              actionButton(
-                inputId = "calculate",
-                label = "Calculate",
-                icon = icon("play")
-              )
+              # actionButton(
+              #   inputId = "calculate",
+              #   label = "Calculate",
+              #   icon = icon("play")
+              # )
             ),
             mainPanel(
               htmlOutput(outputId = "result")
@@ -79,8 +80,15 @@ server <- function(input, output, session) {
     
     lean_body_mass <- ideal_body_weight + 0.29 * (input$weight - ideal_body_weight)
     
-    table <- data.frame(title = c("measured weight (kg)", "Ideal Body Weight (kg)", "Lean Body Mass (kg)"), 
-                        value = c(input$weight, ideal_body_weight, lean_body_mass))
+    adjustedbw <- ideal_body_weight + 0.35 * (input$weight - ideal_body_weight)
+    
+    table <- data.frame(title = c("Measured Weight (kg)", "Ideal Body Weight (kg)", "Lean Body Mass (kg)", "Adjusted Body Weight (kg)"), 
+                        value = c(round(input$weight, 1), 
+                                  round(ideal_body_weight, 1), 
+                                  round(lean_body_mass, 1),
+                                  round(adjustedbw, 1)
+                                  )
+                        )
     
     return(table)
     
@@ -88,8 +96,9 @@ server <- function(input, output, session) {
   
   output$result <- renderText({
     
-    kbl(calc(), "html", escape = F) %>%
-    kable_styling("bordered")
+    kbl(calc(), "html", escape = F, col.names = c("", "")) %>%
+      kable_styling("bordered", full_width = F) %>% 
+      column_spec(1, bold = T)
     
   })
   
