@@ -176,12 +176,30 @@ server <- function(input, output, session) {
                                    "Refer to BNFC or local guideline",
                                    "Refer to BNFC or local guideline",
                                    "Refer to BNFC or local guideline"
-                                   )
                           )
+    )
     
-    kbl(tbl_tbw, "html", escape = F, col.names = c("Use Total Body Weight", "Dose")) %>%
+    tbl_tbw$Drug <- cell_spec(tbl_tbw$Drug,
+                              background = ifelse(tbl_tbw$Drug %in% c("Sugammadex (2 - 16 mg/kg)", "Neostigmine (0.05 mg/kg)"), 
+                                                  "white", 
+                                                  scales::alpha("white", 0))
+                              )
+    
+    generate_background_stripes <- function(color1, color2, angle = 45) {
+      css <- sprintf("background: repeating-linear-gradient(%sdeg, %s, %s 10px);", angle, color1, color2)
+      return(css)
+    }
+    
+    
+    kbl(tbl_tbw, "html", escape = F, col.names = c("Drug", "Dose based on TBW")) %>%
       kable_styling("bordered", full_width = F) %>% 
-      column_spec(1, bold = T)
+      column_spec(1, bold = T) %>% 
+      column_spec(2, background = "white") %>% 
+      row_spec(1:2, background = col_antichol) %>% 
+      row_spec(3:4, background = col_ponv) %>% 
+      row_spec(5, background = col_relaxant) %>% 
+      row_spec(6:7, extra_css = generate_background_gradient(col_relaxant, "white"), color = "black") %>% 
+      row_spec(8:10, background = "white")
     
     
   })
