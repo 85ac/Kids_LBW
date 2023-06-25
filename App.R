@@ -8,7 +8,9 @@ ui <- dashboardPage(
   dashboardHeader(title = "IBW/LBM Calculator"),
   dashboardSidebar(
     sidebarMenu(
-      menuItem("Calculator", tabName = "calculator", icon = icon("calculator")),
+      menuItem("Paediatrics", tabName = "paeds_calc", icon = icon("baby")),
+      
+      menuItem("Adult", tabName = "adult_calc", icon = icon("person")),
       
       p("Copyright (c) Andy Clark & Lawrence Li")
     )
@@ -19,11 +21,16 @@ ui <- dashboardPage(
     
     tabItems(
       tabItem(
-        tabName = "calculator",
+        tabName = "paeds_calc",
         fluidPage(
+          
           titlePanel("Ideal Body Weight and Lean Body Mass for Paediatrics"),
+          
           sidebarLayout(
+            
             sidebarPanel(
+              width = 3, 
+              
               selectInput(
                 inputId = "age",
                 label = "Age (years)",
@@ -45,10 +52,19 @@ ui <- dashboardPage(
               ),
               numericInput(
                 inputId = "weight",
-                label = "Weight (kg)",
+                label = "Measured Weight (kg)",
                 value = 30,
                 min = 10,
                 max = 100
+              ),
+              
+              br(),
+              
+              fluidRow(
+                p("All calculations are derived from the Guidelines produced by the Society for Obesity and Bariatric Anaesthesia"),
+                
+                HTML(paste(("Please refere to the"), 
+                           a(href = "https://www.sobauk.co.uk/guidelines-1", "full guidelines here.")))
               ),
               # actionButton(
               #   inputId = "calculate",
@@ -57,7 +73,17 @@ ui <- dashboardPage(
               # )
             ),
             mainPanel(
-              htmlOutput(outputId = "result")
+              
+              
+              
+              fluidRow(
+                column(
+                  width = 3,
+                  htmlOutput(outputId = "result")
+                )
+              )
+              
+              
             )
           )
         )
@@ -68,6 +94,23 @@ ui <- dashboardPage(
 
 # Server
 server <- function(input, output, session) {
+  
+  # Colour Coding for Drugs -------------------------------------------------
+  
+  col_opioid <- "#5db1e4"
+  
+  col_relaxant <- "#f02e17"
+  
+  col_GA <- "#ffff00"
+  
+  col_uppers <- "#e5c1e5"
+  
+  col_antichol <- "#51d851"
+  
+  col_benzo <- "#FFA500"
+  
+  col_mod <- "#c0c0c0"
+  
   
   calc <- reactive({
     
@@ -87,8 +130,8 @@ server <- function(input, output, session) {
                                   round(ideal_body_weight, 1), 
                                   round(lean_body_mass, 1),
                                   round(adjustedbw, 1)
-                                  )
                         )
+    )
     
     return(table)
     
@@ -123,21 +166,21 @@ server <- function(input, output, session) {
   #   # Output the results
   #   output$result <- kbl(table, "html", escape = F) %>%
   #     kable_styling("bordered")
-      
-      
-      
-      # kbl(table %>% select(ebl, pred_hb, range_PI), "html", escape = F, 
-      #     col.names = c("Estimated Blood Loss (mls)", "Predicted Haemoglobin (g/L)", "90% Prediction Interval (g/L)"),
-      #     align = c("crr")
-      # ) %>%
-      #   kable_styling("bordered", full_width = F, position = "left") %>% 
-      #   row_spec(0, bold = T, background = "#f0f0f0") %>% 
-      #   row_spec(1:nrow(table), color = "white", background = bg) #%>% 
-      # #add_header_above(c("","Haemoglobin (g/L)" = 3), bold = T, background = "#f2d8d8")
-      
-      
-    
-  }
+  
+  
+  
+  # kbl(table %>% select(ebl, pred_hb, range_PI), "html", escape = F, 
+  #     col.names = c("Estimated Blood Loss (mls)", "Predicted Haemoglobin (g/L)", "90% Prediction Interval (g/L)"),
+  #     align = c("crr")
+  # ) %>%
+  #   kable_styling("bordered", full_width = F, position = "left") %>% 
+  #   row_spec(0, bold = T, background = "#f0f0f0") %>% 
+  #   row_spec(1:nrow(table), color = "white", background = bg) #%>% 
+  # #add_header_above(c("","Haemoglobin (g/L)" = 3), bold = T, background = "#f2d8d8")
+  
+  
+  
+}
 
 # Run the app
 shinyApp(ui, server)
