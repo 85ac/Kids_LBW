@@ -74,14 +74,22 @@ ui <- dashboardPage(
             ),
             mainPanel(
               
-              
+              # Display tables
               
               fluidRow(
                 column(
                   width = 3,
-                  htmlOutput(outputId = "result")
+                  htmlOutput(outputId = "tbl_wt")
                 )
-              )
+              ),
+              
+              fluidRow(
+                column(
+                  width = 4,
+                  htmlOutput(outputId = "tbl_tbw")
+                )
+              ),
+              
               
               
             )
@@ -111,6 +119,7 @@ server <- function(input, output, session) {
   
   col_mod <- "#c0c0c0"
   
+  col_ponv <- "#FFCDB0"
   
   calc <- reactive({
     
@@ -137,11 +146,43 @@ server <- function(input, output, session) {
     
   })
   
-  output$result <- renderText({
+  output$tbl_wt <- renderText({
     
     kbl(calc(), "html", escape = F, col.names = c("", "")) %>%
       kable_styling("bordered", full_width = F) %>% 
       column_spec(1, bold = T)
+    
+  })
+  
+  output$tbl_tbw <- renderText({
+    
+    tbl_tbw <- data.frame(Drug = c("Atropine (0.02 mg/kg)", 
+                                   "Glycopyrrolate (0.01 mg/kg)", 
+                                   "Dexamethasone (0.15 mg/kg)", 
+                                   "Ondansetron (0.1 mg/kg)",
+                                   "Suxamethonium (1 - 2 mg /kg)", 
+                                   "Sugammadex (2 - 16 mg/kg)", 
+                                   "Neostigmine (0.05 mg/kg)",
+                                   "Penicillins", 
+                                   "Cephalosporins", 
+                                   "Enoxaparin"),
+                          Dose = c(paste(ifelse(0.02*input$weight >= 0.6, 0.6, 0.02*input$weight), "mg"),
+                                   paste(ifelse(0.01*input$weight >= 0.2, 0.2, 0.01*input$weight), "mg"),
+                                   paste(ifelse(0.15*input$weight >= 8, 8, 0.15*input$weight), "mg"),
+                                   paste(ifelse(0.1*input$weight >= 4, 4, 0.1*input$weight), "mg"),
+                                   paste(1*input$weight, "to", 2*input$weight, "mg"),
+                                   paste(2*input$weight, "to", 16*input$weight, "mg"),
+                                   paste(ifelse(0.05*input$weight >= 2.5, 2.5, 0.05*input$weight), "mg"),
+                                   "Refer to BNFC or local guideline",
+                                   "Refer to BNFC or local guideline",
+                                   "Refer to BNFC or local guideline"
+                                   )
+                          )
+    
+    kbl(tbl_tbw, "html", escape = F, col.names = c("Use Total Body Weight", "Dose")) %>%
+      kable_styling("bordered", full_width = F) %>% 
+      column_spec(1, bold = T)
+    
     
   })
   
