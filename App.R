@@ -96,7 +96,7 @@ ui <- dashboardPage(
                 
                 column(
                   width = 4, 
-                  htmlOutput(outputId = "tbl_adbw")
+                  htmlOutput(outputId = "tbl_ga")
                 )
               ),
               
@@ -144,7 +144,7 @@ server <- function(input, output, session) {
     
     adjustedbw <- ideal_body_weight + 0.35 * (input$weight - ideal_body_weight)
     
-    table <- data.frame(title = c("Measured Weight (kg)", "Ideal Body Weight (kg)", "Lean Body Mass (kg)", "Adjusted Body Weight (kg)"), 
+    table <- data.frame(title = c("Measured Weight", "Ideal Body Weight (IBW)", "Lean Body Mass (LBM)", "Adjusted Body Weight (Adj35BW)"), 
                         value = c(round(input$weight, 1), 
                                   round(ideal_body_weight, 1), 
                                   round(lean_body_mass, 1),
@@ -158,7 +158,7 @@ server <- function(input, output, session) {
   
   output$tbl_wt <- renderText({
     
-    kbl(calc(), "html", escape = F, col.names = c("", "")) %>%
+    kbl(calc(), "html", escape = F, col.names = c("Parameter", "kg")) %>%
       kable_styling("bordered", full_width = F) %>% 
       column_spec(1, bold = T)
     
@@ -227,7 +227,7 @@ server <- function(input, output, session) {
                                    "Morphine (0.1 mg/kg)", 
                                    "Atracurium (0.5 mg/kg)",
                                    "Rocuronium (0.5 - 1 mg/kg)",
-                                   "Dexamethasone (0.15 mg/kg)",
+                                   #"Dexamethasone (0.15 mg/kg)",
                                    "Local Anaesthetics",
                                    "Adrenaline",
                                    "Phenyephrine"
@@ -237,7 +237,7 @@ server <- function(input, output, session) {
                                     paste(round(0.1*ideal_body_weight, 0), "mg"),
                                     paste(round(0.5*ideal_body_weight, 0), "mg"),
                                     paste(round(0.5*ideal_body_weight, 0), "to", round(1*ideal_body_weight, 0), "mg"),
-                                    paste(round(0.15*ideal_body_weight, 0), "mg"),
+                                    #paste(round(0.15*ideal_body_weight, 0), "mg"),
                                     paste("Dose according to preparation using IBW"),
                                     paste("Dose according to indication using IBW"),
                                     paste("Dose according to indication using IBW")
@@ -251,23 +251,38 @@ server <- function(input, output, session) {
       row_spec(1:2, background = col_GA) %>% 
       row_spec(3, background = col_opioid) %>% 
       row_spec(4:5, background = col_relaxant) %>% 
-      row_spec(6, background = col_ponv) %>% 
-      row_spec(7, background = col_mod) %>% 
-      row_spec(8:9, background = col_uppers)
+      #row_spec(6, background = col_ponv) %>% 
+      row_spec(6, background = col_mod) %>% 
+      row_spec(7:8, background = col_uppers)
     })
   
-  output$adbw <- reactive({
+  output$tbl_ga <- reactive({
     
-    BMI_50_boys <- 24.27 - (8.91/(1+(as.numeric(input$age)/15.78)^4.4))
-    BMI_50_girls <- 22.82 - (7.51/(1+(as.numeric(input$age)/13.46)^4.44))
+    ideal_body_weight = calc()[[2, 2]]
     
-    ideal_body_weight <- ifelse(input$gender == "Male",
-                                BMI_50_boys * (input$height/100)^2,
-                                BMI_50_girls * (input$height/100)^2)
+    adjbw = calc()[[4, 2]]
     
-    lean_body_mass <- ideal_body_weight + 0.29 * (input$weight - ideal_body_weight)
+    ga_tbl <- data.frame(
+      colour = c("", "", ""),
+      Drug = c("Propofol bolus (2 - 5 mg/kg)",
+               "Propofol TCI",
+               "Ketamine (1 - 2 mg/kg)"),
+      Dose = c(paste(round(2*ideal_body_weight, 0), "to", round(5*ideal_body_weight, 0), "mg"),
+               paste("Use adjusted body weight for model"),
+               paste(round(1*ideal_body_weight, 0), "to", round(2*ideal_body_weight, 0), "mg")
+               ),
+      Parameter = c("IBW", "Adj35BW", "IBW")
     
-    adjustedbw <- ideal_body_weight + 0.35 * (input$weight - ideal_body_weight)
+      )
+    
+    kable(ga_tbl, "html", escape = F, col.names = c("", "Drug", "Dose", "Parameter")) %>% 
+      kable_styling("hover", full_width = T, font_size = 12) %>%
+      column_spec(1, background = col_GA, width = "2em") %>% 
+      column_spec(2, bold = T) %>% 
+      column_spec(2:4, background = "white") %>% 
+      column_spec(4, color = "grey") %>% 
+      add_header_above(c("GA Drugs" = 2, "  " = 2))
+    
     
   })
   
