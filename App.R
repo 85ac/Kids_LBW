@@ -87,6 +87,16 @@ ui <- dashboardPage(
                 column(
                   width = 4,
                   htmlOutput(outputId = "tbl_tbw")
+                ),
+                
+                column(
+                  width = 4, 
+                  htmlOutput(outputId = "tbl_ibw")
+                ),
+                
+                column(
+                  width = 4, 
+                  htmlOutput(outputId = "tbl_adbw")
                 )
               ),
               
@@ -191,16 +201,73 @@ server <- function(input, output, session) {
     }
     
     
-    kbl(tbl_tbw, "html", escape = F, col.names = c("Drug", "Dose based on TBW")) %>%
-      kable_styling("bordered", full_width = F) %>% 
+    kbl(tbl_tbw, "html", escape = F, col.names = c("Drug", "Dose based on Actual Weight")) %>%
+      kable_styling("bordered", full_width = T) %>% 
       column_spec(1, bold = T) %>% 
       column_spec(2, background = "white") %>% 
       row_spec(1:2, background = col_antichol) %>% 
       row_spec(3:4, background = col_ponv) %>% 
       row_spec(5, background = col_relaxant) %>% 
-      row_spec(6:7, extra_css = generate_background_gradient(col_relaxant, "white"), color = "black") %>% 
-      row_spec(8:10, background = "white")
+      row_spec(6:7, extra_css = generate_background_stripes(col_relaxant, "white"), color = "black") %>% 
+      row_spec(8:10, background = "white")  
     
+  })
+  
+  output$tbl_ibw <- reactive({
+    
+    BMI_50_boys <- 24.27 - (8.91/(1+(as.numeric(input$age)/15.78)^4.4))
+    BMI_50_girls <- 22.82 - (7.51/(1+(as.numeric(input$age)/13.46)^4.44))
+    
+    ideal_body_weight <- ifelse(input$gender == "Male",
+                                BMI_50_boys * (input$height/100)^2,
+                                BMI_50_girls * (input$height/100)^2)
+    
+    tbl_ibw <- data.frame(Drug = c("Propofol bolus (2 - 5 mg/kg)",
+                                   "Ketamine (1 - 2 mg/kg",
+                                   "Morphine (0.1 mg/kg)", 
+                                   "Atracurium (0.5 mg/kg)",
+                                   "Rocuronium (0.5 - 1 mg/kg)",
+                                   "Dexamethasone (0.15 mg/kg)",
+                                   "Local Anaesthetics",
+                                   "Adrenaline",
+                                   "Phenyephrine"
+                                   ),
+                          Doses = c(paste(round(2*ideal_body_weight, 0), "to", round(5*ideal_body_weight, 0), "mg"),
+                                    paste(round(1*ideal_body_weight, 0), "to", round(2*ideal_body_weight, 0), "mg"),
+                                    paste(round(0.1*ideal_body_weight, 0), "mg"),
+                                    paste(round(0.5*ideal_body_weight, 0), "mg"),
+                                    paste(round(0.5*ideal_body_weight, 0), "to", round(1*ideal_body_weight, 0), "mg"),
+                                    paste(round(0.15*ideal_body_weight, 0), "mg"),
+                                    paste("Dose according to preparation using IBW"),
+                                    paste("Dose according to indication using IBW"),
+                                    paste("Dose according to indication using IBW")
+                                    )
+                          )
+    
+    kbl(tbl_ibw, "html", escape = F, col.names = c("Drug", "Dose based on Ideal Body Weight")) %>% 
+      kable_styling("bordered", full_width = T) %>%
+      column_spec(1, bold = T) %>% 
+      column_spec(2, background = "white") %>% 
+      row_spec(1:2, background = col_GA) %>% 
+      row_spec(3, background = col_opioid) %>% 
+      row_spec(4:5, background = col_relaxant) %>% 
+      row_spec(6, background = col_ponv) %>% 
+      row_spec(7, background = col_mod) %>% 
+      row_spec(8:9, background = col_uppers)
+    })
+  
+  output$adbw <- reactive({
+    
+    BMI_50_boys <- 24.27 - (8.91/(1+(as.numeric(input$age)/15.78)^4.4))
+    BMI_50_girls <- 22.82 - (7.51/(1+(as.numeric(input$age)/13.46)^4.44))
+    
+    ideal_body_weight <- ifelse(input$gender == "Male",
+                                BMI_50_boys * (input$height/100)^2,
+                                BMI_50_girls * (input$height/100)^2)
+    
+    lean_body_mass <- ideal_body_weight + 0.29 * (input$weight - ideal_body_weight)
+    
+    adjustedbw <- ideal_body_weight + 0.35 * (input$weight - ideal_body_weight)
     
   })
   
