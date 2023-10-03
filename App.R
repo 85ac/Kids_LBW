@@ -6,15 +6,16 @@ library(formattable)
 library(fontawesome)
 library(shinyWidgets)
 library(shinyvalidate)
+library(shinyalert)
 
 # UI
 ui <- dashboardPage(
   dashboardHeader(title = "IBW/AdjBW Calculator"),
-  dashboardSidebar(
+  dashboardSidebar(collapsed = T, 
     sidebarMenu(
-      menuItem("Paediatrics", tabName = "paeds_calc", icon = icon("baby")),
+      menuItem("Calculator", tabName = "Calculator", icon = icon("calculator")),
       
-      menuItem("Adult", tabName = "adult_calc", icon = icon("person")),
+      menuItem("Info", tabName = "info_page", icon = icon("book")),
       
       p("Copyright (c) Andy Clark & Lawrence Li")
     )
@@ -25,7 +26,7 @@ ui <- dashboardPage(
     
     tabItems(
       tabItem(
-        tabName = "paeds_calc",
+        tabName = "Calculator",
         fluidPage(
           
           titlePanel("Ideal and Adjusted Body Weight for Anaesthesia"),
@@ -112,12 +113,39 @@ ui <- dashboardPage(
           )
         )
       )
+              
+            ),
+  tabItem(tabName = "info_page",
+          fluidPage(
+            titlePanel("Ideal and Adjusted Body Weight for Anaesthesia"),
+            mainPanel("boo")),
     )
   )
 
 
 # Server
 server <- function(input, output, session) {
+  
+  shinyalert(
+    title = "IBW/Adj35W Calculator for Anaesthesia",
+    text = "The use of this application is for reference only and whilst every effort is made to make it accurate,  
+    the accuracy cannot be guaranteed.
+    Please use your own clinical judgement and follow your own hospital's guidelines.
+    The authors do not take responsibility for any clinical decisions made using this calculator.
+    Copyright (c) Dr Andy Clark & Dr Lawrence Li 2022",
+size = "s", 
+closeOnEsc = TRUE,
+closeOnClickOutside = FALSE,
+html = FALSE,
+type = "warning",
+showConfirmButton = TRUE,
+showCancelButton = FALSE,
+confirmButtonText = "OK",
+confirmButtonCol = "#AEDEF4",
+timer = 0,
+imageUrl = "",
+animation = TRUE
+  )
   
   # Colour Coding for Drugs -------------------------------------------------
   
