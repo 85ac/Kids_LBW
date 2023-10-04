@@ -239,32 +239,32 @@ animation = TRUE
             "Propofol TCI",
             "Ketamine (1 - 2 mg/kg)", 
             # OPIATES #
-            "Morphine (0.1mg/kg)", 
-            "Alfentanil (10mcg/kg)", 
-            "Fentanyl (1mcg/kg)", 
+            "Morphine (0.1 mg/kg)", 
+            "Alfentanil (10 mcg/kg)", 
+            "Fentanyl (1 mcg/kg)", 
             "Remifentanil (mcg/kg/min & Minto Model)",
             # RELAXANTS #
-            "Rocuronium (0.5 - 1mg/kg)",
+            "Rocuronium (0.5 - 1 mg/kg)",
             # REVERSAL #
             "Neostigmine (50 mcg/kg)",
-            "Sugammadex (2mg/kg)",
+            "Sugammadex (2 mg/kg)",
             # ANTI_CHOL
-            "Atropine (20mcg/kg)",
+            "Atropine (20 mcg/kg)",
             "Glycopyrronmium (4-8 mcg/kg)",
             # ANALG
-            "Paracetamol (15mg/kg)",
-            "Ibuprofen (10mg/kg)",
+            "Paracetamol (15 mg/kg)",
+            "Ibuprofen (10 mg/kg)",
             # ANTIEMETICS
-            "Ondansetron (0.15mg/kg)",
-            "Dexamethasome (0.15mg/kg)",
+            "Ondansetron (0.15 mg/kg)",
+            "Dexamethasome (0.15 mg/kg)",
             # ANTIBIOTICS
             "Cephalosporins",
             "Penicillins",
             # PREMEDS
-            "Midazolam - oral (0.5mg/kg)",
-            "Clonidine - oral (4mcg/kg)",
-            "Ketamine - oral (5-10mg/kg)",
-            "Ketamine - IM (5mg/kg)"
+            "Midazolam - oral (0.5 mg/kg)",
+            "Clonidine - oral (4 mcg/kg)",
+            "Ketamine - oral (5-10 mg/kg)",
+            "Ketamine - IM (5 mg/kg)"
           ),
           Dose = c(paste(round(2*ideal_body_weight, 0), "to", round(5*ideal_body_weight, 0), "mg"), # PROP BOLUS
                    paste("Use", round(adjustedbw, 0), "kg"),                                      # POP INFUSION
