@@ -132,7 +132,7 @@ server <- function(input, output, session) {
     the accuracy cannot be guaranteed.
     Please use your own clinical judgement and follow your own hospital's guidelines.
     The authors do not take responsibility for any clinical decisions made using this calculator.
-    Copyright (c) Dr Andy Clark & Dr Lawrence Li 2022",
+    Copyright (c) Dr Andy Clark & Dr Lawrence Li 2023",
 size = "s", 
 closeOnEsc = TRUE,
 closeOnClickOutside = FALSE,
@@ -164,6 +164,13 @@ animation = TRUE
   col_mod <- "#c0c0c0"
   
   col_ponv <- "#FFCDB0"
+  
+  generate_background_stripes <- function(color1, color2, angle = 45) {
+    css <- sprintf("background: repeating-linear-gradient(%sdeg, %s, %s 10px);", angle, color1, color2)
+    return(css)
+  }
+  
+  col_reversal <- generate_background_stripes(col_relaxant, "white")
   
   calc <- reactive({
     
@@ -310,26 +317,27 @@ animation = TRUE
     kable(ga_tbl, "html", escape = F, col.names = c("", "Drug", "Dose", "Parameter")) %>% 
       kable_styling("hover", full_width = T, font_size = 12) %>%
       column_spec(1, background = c(col_GA, col_GA, col_GA, 
-                                    col_opioid, col_opioid, col_opioid, col_opioid, 
-                                    col_relaxant, col_relaxant, col_relaxant,
+                                    col_opioid, col_opioid, col_opioid, col_opioid,
+                                    col_relaxant,
+                                    extra_css = generate_background_stripes(col_relaxant, "white"), extra_css = generate_background_stripes(col_relaxant, "white"),
                                     col_antichol, col_antichol,
-                                    "white", "white", 
-                                    col_ponv, col_ponv, 
                                     "white", "white",
-                                    "orange", "white", col_GA, col_GA), 
-                  width = "2em") %>% 
+                                    col_ponv, col_ponv,
+                                    "white", "white",
+                                    "orange", "white", col_GA, col_GA),
+                  width = "2em") %>%
       column_spec(2, bold = T) %>% 
-      column_spec(2:4, background = "white") %>% 
-      column_spec(4, color = "grey") %>% 
       pack_rows("Anaesthesia", 1, 2, label_row_css = "background-color: #ffff00; color: #000000;") %>% 
       pack_rows("Opiods", 4,5, label_row_css = "background-color: #5db1e4; color: #fff;") %>%
       pack_rows("Relaxants", 8,8, label_row_css = "background-color: #f02e17; color: #fff;") %>%
-      pack_rows("Reversal", 9,10, label_row_css = "background-color: #f02e17; color: #fff;") %>%
+      pack_rows("Reversal", 9,10, label_row_css = generate_background_stripes(col_relaxant, "white"), color = "black") %>%
       pack_rows("Anticholinergics", 11, 12, label_row_css = "background-color: #51d851; color: #fff;") %>%
       pack_rows("Analgesia", 13,14, label_row_css = "background-color: #FFFFFF; color: #000000;") %>%
       pack_rows("Antiemetics", 15,16, label_row_css = "background-color: #FFCDB0; color: #000000;") %>%
       pack_rows("Antibiotics", 17,18, label_row_css = "background-color: #FFFFFF; color: #000000;") %>%
-      pack_rows("Pre-medication", 19,22, label_row_css = "background-color: #FFFFFF; color: #000000;")
+      pack_rows("Pre-medication", 19,22, label_row_css = "background-color: #FFFFFF; color: #000000;") %>% 
+      column_spec(4, color = "grey") %>% 
+      column_spec(2:4, background = "white")
 
     
   })
