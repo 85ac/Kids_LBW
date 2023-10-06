@@ -313,6 +313,7 @@ animation = TRUE
                         "IBW")
           
         )
+            
         
     kable(ga_tbl, "html", escape = F, col.names = c("", "Drug", "Dose", "Parameter")) %>% 
       kable_styling("hover", full_width = T, font_size = 12) %>%
