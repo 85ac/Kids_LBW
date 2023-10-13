@@ -314,21 +314,34 @@ animation = TRUE
           
         )
             
+        # Define the row and column indices for customization
+        row_indices <- 9:10
+        col_indices <- 2:4
+        
+        # Create a data frame to hold the background color information
+        background_colors <- expand.grid(row_indices, col_indices)
+        background_colors$background <- ifelse(
+          background_colors$Var1 %in% c(9, 10), # Rows 9 and 10
+          ifelse(background_colors$Var2 == 1, generate_background_stripes(col_relaxant, "white"), "white"), # Column 1 or columns 2 to 4
+          "white" # Other rows and columns
+        )
+        
         
     kable(ga_tbl, "html", escape = F, col.names = c("", "Drug", "Dose", "Parameter")) %>% 
       kable_styling("hover", full_width = T, font_size = 12) %>%
       column_spec(1, background = c(col_GA, col_GA, col_GA, 
                                     col_opioid, col_opioid, col_opioid, col_opioid,
                                     col_relaxant,
-                                    extra_css = generate_background_stripes(col_relaxant, "white"), extra_css = generate_background_stripes(col_relaxant, "white"),
+                                    col_relaxant, col_relaxant,
                                     col_antichol, col_antichol,
                                     "white", "white",
                                     col_ponv, col_ponv,
                                     "white", "white",
                                     "orange", "white", col_GA, col_GA),
                   width = "2em") %>%
-      column_spec(2, bold = T) %>% 
-      pack_rows("Anaesthesia", 1, 2, label_row_css = "background-color: #ffff00; color: #000000;") %>% 
+      # row_spec(9:10, extra_css = generate_background_stripes(col_relaxant, "white")) %>% 
+      column_spec(2, bold = T) %>%
+      pack_rows("Anaesthesia", 1, 2, label_row_css = "background-color: #ffff00; color: #000000;") %>%
       pack_rows("Opiods", 4,5, label_row_css = "background-color: #5db1e4; color: #fff;") %>%
       pack_rows("Relaxants", 8,8, label_row_css = "background-color: #f02e17; color: #fff;") %>%
       pack_rows("Reversal", 9,10, label_row_css = generate_background_stripes(col_relaxant, "white"), color = "black") %>%
@@ -336,11 +349,13 @@ animation = TRUE
       pack_rows("Analgesia", 13,14, label_row_css = "background-color: #FFFFFF; color: #000000;") %>%
       pack_rows("Antiemetics", 15,16, label_row_css = "background-color: #FFCDB0; color: #000000;") %>%
       pack_rows("Antibiotics", 17,18, label_row_css = "background-color: #FFFFFF; color: #000000;") %>%
-      pack_rows("Pre-medication", 19,22, label_row_css = "background-color: #FFFFFF; color: #000000;") %>% 
+      pack_rows("Pre-medication", 19,22, label_row_css = "background-color: #FFFFFF; color: #000000;") %>%
       column_spec(4, color = "grey") %>% 
-      column_spec(2:4, background = "white")
-
-    
+      row_spec(9:10, extra_css = generate_background_stripes(col_relaxant, "white")) %>%
+      row_spec(row_indices, background = background_colors$background) %>%
+      column_spec(col_indices, background = "white")
+      
+   
   })
 
         output$tbl_la <- reactive({
